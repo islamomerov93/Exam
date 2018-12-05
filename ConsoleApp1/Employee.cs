@@ -9,5 +9,6 @@ namespace ConsoleApp1
     class Employee : User
     {
         public Employee(string usename, string email, string password) : base(usename, email, password){}
+        public CV CV = new CV();
     }
 }
