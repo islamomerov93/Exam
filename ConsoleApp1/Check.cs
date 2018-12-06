@@ -11,10 +11,9 @@ namespace ConsoleApp1
     {
         public static void ShowMessage(string message,ConsoleColor consoleColor)
         {
-            Console.Clear();
-            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = consoleColor;
             Console.WriteLine(message);
-            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.DarkYellow; ;
         }
         public static bool NullErrorMessage(string str)
         {
