@@ -41,6 +41,7 @@ namespace SearchingSystem
                 Console.WriteLine($"Salary                           : {announce.Salary}");
                 Console.WriteLine($"Contact number                   : {announce.ContactNumber}\n");
             }
+            if (i == 1) Tools.ShowMessage("There is not any announcement that corresponds to that category ", ConsoleColor.Red);
         }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace SearchingSystem
 {
@@ -29,7 +28,7 @@ namespace SearchingSystem
         {
             Console.ForegroundColor = consoleColor;
             Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.DarkYellow; ;
+            Console.ForegroundColor = ConsoleColor.Yellow; ;
         }
         public static bool NullErrorMessage(string str)
         {
@@ -39,6 +38,18 @@ namespace SearchingSystem
                 return true;
             }
             return false;
+        }
+        public static void AnimatedHeader(object tmp)
+        {
+            string main = tmp as string;
+            var title = "";
+            for (int i = 0; i < main.Length; i++)
+            {
+                title += main[i];
+                Console.Title = title;
+                Thread.Sleep(100);
+            }
+
         }
         public static string GenerateConfirmationCode()
         {
@@ -73,7 +84,7 @@ namespace SearchingSystem
                         Console.Clear();
                         if (employees[userIndex].CV != null)
                         {
-                            Tools.ShowMessage("You have CV already", ConsoleColor.DarkRed);
+                            Tools.ShowMessage("You have CV already", ConsoleColor.Red);
                             Thread.Sleep(2000);
                             continue;
                         }
@@ -104,7 +115,7 @@ namespace SearchingSystem
                             if (int.TryParse(Console.ReadLine(), out int a)) employees[userIndex].CV.Age = a;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto age;
                             }
                             Console.WriteLine("Education");
@@ -118,7 +129,7 @@ namespace SearchingSystem
                             else if (Educ == "3") employees[userIndex].CV.Education = Education.Higher;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto education;
                             }
                             Console.WriteLine("Work experience");
@@ -134,7 +145,7 @@ namespace SearchingSystem
                             else if (we == "4") employees[userIndex].CV.WorkExperience = WorkExperience.MoreThan_5_Year;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto workExp;
                             }
                             Console.WriteLine("Category");
@@ -154,7 +165,7 @@ namespace SearchingSystem
                             else if (category == "6") employees[userIndex].CV.Category = Category.Translator;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto cat;
                             }
                             Console.WriteLine("City");
@@ -170,7 +181,7 @@ namespace SearchingSystem
                             else if (city == "4") employees[userIndex].CV.City = City.Nakhcivan;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto city;
                             }
                             Console.Write("Minimum salary    : ");
@@ -178,19 +189,34 @@ namespace SearchingSystem
                             if (int.TryParse(Console.ReadLine(), out int b)) employees[userIndex].CV.MinimumSalary = b;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto minSal;
                             }
                             Console.Write("Phone number      : ");
                             number:
                             employees[userIndex].CV.Number = Console.ReadLine();
-                            if (Tools.NullErrorMessage(employees[userIndex].CV.Number)) goto number;
-                            Tools.ShowMessage("CV added successfully", ConsoleColor.DarkGreen);
-                            Console.ReadKey();
+                            if (string.IsNullOrWhiteSpace(employees[userIndex].CV.Number))
+                            {
+                                Tools.ShowMessage("Invalide entry (empty number not accepted), try again :", ConsoleColor.Red);
+                                goto number;
+                            }
+                            else if (!Tools.Check.CorrectNumber(employees[userIndex].CV.Number))
+                            {
+                                Tools.ShowMessage("Invalid number, try again :", ConsoleColor.Red);
+                                goto number;
+                            }
+                            Tools.ShowMessage("CV added successfully", ConsoleColor.Green);
+                            Thread.Sleep(2000);
                             break;
                         }
                         continue;
                     case "2":
+                        if (employees[userIndex].CV == null)
+                        {
+                            ShowMessage("You don't have CV yet", ConsoleColor.Red);
+                            Thread.Sleep(2000);
+                            continue;
+                        }
                         employees[userIndex].AnnouncesForCV(employers);
                         Console.ReadKey();
                         continue;
@@ -200,8 +226,8 @@ namespace SearchingSystem
                     case "4":
                         if (employees[userIndex].CV == null)
                         {
-                            Tools.ShowMessage("You don't have CV yet", ConsoleColor.DarkRed);
-                            Thread.Sleep(3000);
+                            ShowMessage("You don't have CV yet", ConsoleColor.Red);
+                            Thread.Sleep(2000);
                             continue;
                         }
                         employees[userIndex].ShowCV();
@@ -239,8 +265,9 @@ namespace SearchingSystem
                                     if (apply == "y")
                                     {
                                         employer.Apply[id].Add(employees[userIndex].CV);
-                                        ShowMessage("CV sended successfully", ConsoleColor.DarkGreen);
-                                        Console.ReadKey();
+                                        employees[userIndex].announceIDs.Add(announce.ID);
+                                        ShowMessage("CV sended successfully", ConsoleColor.Green);
+                                        Thread.Sleep(2000);
                                         continue;
                                     }
                                     else if (apply == "n")
@@ -250,19 +277,46 @@ namespace SearchingSystem
                                     }
                                     else
                                     {
-                                        ShowMessage("Invalid imput, enter again", ConsoleColor.DarkRed);
+                                        ShowMessage("Invalid imput, enter again", ConsoleColor.Red);
                                         goto choice;
                                     }
                                 }
                             }
                         }
                         continue;
+                    case "6":
+                        int o = 1;
+                        foreach (var employer in employers)
+                        {
+                            var result = from z in employees[userIndex].announceIDs
+                                         join t in employer.announces on z equals t.ID
+                                         select t;
+                            if (result != null)
+                            {
+                                foreach (var item in result)
+                                {
+                                    Console.WriteLine($"Announce number {o++}");
+                                    Console.WriteLine($"Name of work                     : {item.WorkName}");
+                                    Console.WriteLine($"Name of Company                  : {item.CompanyName}");
+                                    Console.WriteLine($"Category of work                 : {item.Category}");
+                                    Console.WriteLine($"Description about work           : {item.AboutWork}");
+                                    Console.WriteLine($"City                             : {item.City}");
+                                    Console.WriteLine($"Required mininun age             : {item.Age}");
+                                    Console.WriteLine($"Required mininun education level : {item.Education}");
+                                    Console.WriteLine($"Required mininun work experience : {item.WorkExperience}");
+                                    Console.WriteLine($"Salary                           : {item.Salary}");
+                                    Console.WriteLine($"Contact number                   : {item.ContactNumber}\n");
+                                }
+                             }
+                        }
+                        Console.ReadKey();
+                        continue;
                     case "7":
                         check = true;
                         break;
                     default:
                         Console.Clear();
-                        Tools.ShowMessage("Invalid imput, enter again", ConsoleColor.DarkRed);
+                        Tools.ShowMessage("Invalid imput, enter again", ConsoleColor.Red);
                         continue;
                 }
                 if (check == true) break;
@@ -312,7 +366,7 @@ namespace SearchingSystem
                             else if (category == "6") announce.Category = Category.Translator;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto cat;
                             }
                             Console.WriteLine("About work       : ");
@@ -332,7 +386,7 @@ namespace SearchingSystem
                             else if (city == "4") announce.City = City.Nakhcivan;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto city;
                             }
                             Console.WriteLine("Salary           : ");
@@ -340,7 +394,7 @@ namespace SearchingSystem
                             if (int.TryParse(Console.ReadLine(), out int b)) announce.Salary = b;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto salary;
                             }
                             Console.WriteLine("Age              : ");
@@ -348,7 +402,7 @@ namespace SearchingSystem
                             if (int.TryParse(Console.ReadLine(), out int a)) announce.Age = a;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto age;
                             }
                             Console.WriteLine("Education");
@@ -362,7 +416,7 @@ namespace SearchingSystem
                             else if (Educ == "3") announce.Education = Education.Higher;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto education;
                             }
                             Console.WriteLine("Work experience");
@@ -378,7 +432,7 @@ namespace SearchingSystem
                             else if (we == "4") announce.WorkExperience = WorkExperience.MoreThan_5_Year;
                             else
                             {
-                                Tools.ShowMessage("Enter correct number", ConsoleColor.DarkRed);
+                                Tools.ShowMessage("Enter correct number", ConsoleColor.Red);
                                 goto workExp;
                             }
                             Console.WriteLine("Contact number   : ");
@@ -388,7 +442,7 @@ namespace SearchingSystem
                             ++announce.ID;
                             employers[userIndex].Apply[announce.ID] = null;
                             employers[userIndex].announces.Add(announce);
-                            Tools.ShowMessage("Announce added successfully", ConsoleColor.DarkGreen);
+                            Tools.ShowMessage("Announce added successfully", ConsoleColor.Green);
                             break;
                         }
                         break;
@@ -421,7 +475,7 @@ namespace SearchingSystem
                         break;
                     default:
                         Console.Clear();
-                        Tools.ShowMessage("Invalid imput, enter again", ConsoleColor.DarkRed);
+                        Tools.ShowMessage("Invalid imput, enter again", ConsoleColor.Red);
                         goto EmployerMenu;
                 }
                 if (check == true) break;
@@ -438,12 +492,12 @@ namespace SearchingSystem
                 var username = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(username))
                 {
-                    Tools.ShowMessage("Invalide entry (empty username not accepted), try again :", ConsoleColor.DarkRed);
+                    ShowMessage("Invalide entry (empty username not accepted), try again :", ConsoleColor.Red);
                     goto username;
                 }
                 else if (employees.Exists(x => x.Usename == username))
                 {
-                    Tools.ShowMessage("This username already exists, try again :", ConsoleColor.DarkRed);
+                    ShowMessage("This username already exists, try again :", ConsoleColor.Red);
                     goto username;
                 }
                 Console.Write("Enter email          : ");
@@ -451,12 +505,12 @@ namespace SearchingSystem
                 var email = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(email))
                 {
-                    Tools.ShowMessage("Invalide entry (empty email not accepted), try again :", ConsoleColor.DarkRed);
+                    ShowMessage("Invalide entry (empty email not accepted), try again :", ConsoleColor.Red);
                     goto email;
                 }
-                else if (!Tools.Check.CorrectEmail(email))
+                else if (!Check.CorrectEmail(email))
                 {
-                    Tools.ShowMessage("Invalid email, try again :", ConsoleColor.DarkRed);
+                    ShowMessage("Invalid email, try again :", ConsoleColor.Red);
                     goto email;
                 }
                 Console.Write("Enter password       : ");
@@ -464,32 +518,32 @@ namespace SearchingSystem
                 var password = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(password))
                 {
-                    Tools.ShowMessage("Invalide entry (empty password not accepted), try again :", ConsoleColor.Red);
+                    ShowMessage("Invalide entry (empty password not accepted), try again :", ConsoleColor.Red);
                     goto password1;
                 }
-                else if (!Tools.Check.CorrectPassword(password))
+                else if (!Check.CorrectPassword(password))
                 {
-                    Tools.ShowMessage("Invalid password, try again :", ConsoleColor.DarkRed);
+                    ShowMessage("Invalid password, try again :", ConsoleColor.Red);
                     goto password1;
                 }
-                Console.Write("Enter password again :");
+                Console.Write("Enter password again : ");
                 password2:
                 var password2 = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(password2))
                 {
-                    Tools.ShowMessage("Invalide entry (empty password not accepted), try again :", ConsoleColor.Red);
+                    ShowMessage("Invalide entry (empty password not accepted), try again :", ConsoleColor.Red);
                     goto password1;
                 }
                 else if (password != password2)
                 {
-                    Tools.ShowMessage("Password didn't match, try again :", ConsoleColor.DarkRed);
+                    ShowMessage("Password didn't match, try again :", ConsoleColor.Red);
                     goto password2;
                 }
-                Console.WriteLine("Write code for cofirmation");
+                Console.WriteLine("Cofirmation code");
                 confirm:
                 var ConfirmmationCode = Tools.GenerateConfirmationCode();
-                Console.WriteLine($"Code : {ConfirmmationCode}");
-                Console.Write("Code :");
+                Console.WriteLine($"Code                 : {ConfirmmationCode}");
+                Console.Write("Code                 : ");
                 var confirm = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(confirm))
                 {
@@ -498,7 +552,7 @@ namespace SearchingSystem
                 }
                 else if (confirm != ConfirmmationCode)
                 {
-                    Tools.ShowMessage("Invalid code, try again :", ConsoleColor.DarkRed);
+                    ShowMessage("Invalid code, try again :", ConsoleColor.Red);
                     goto confirm;
                 }
                 Console.Clear();
@@ -509,25 +563,25 @@ namespace SearchingSystem
                 {
                     Employer employer = new Employer(username, email, password);
                     employers.Add(employer);
-                    Tools.ShowMessage($"Congrulation {employer.Usename} ! Registration is succesfull", ConsoleColor.DarkGreen);
+                    ShowMessage($"Congrulation {employer.Usename} ! Registration is succesfull", ConsoleColor.Green);
                     Thread.Sleep(2000);
                     Console.Clear();
-                    Tools.EmployerMenu(employers, employees, employers.IndexOf(employer));
+                    EmployerMenu(employers, employees, employers.IndexOf(employer));
                     break;
                 }
                 else if (status == "2")
                 {
                     Employee employee = new Employee(username, email, password);
                     employees.Add(employee);
-                    Tools.ShowMessage($"Congrulation {employee.Usename}! Registration is succesfull", ConsoleColor.DarkGreen);
+                    ShowMessage($"Congrulation {employee.Usename}! Registration is succesfull", ConsoleColor.Green);
                     Thread.Sleep(2000);
                     Console.Clear();
-                    Tools.EmployeeMenu(employees, employers, employees.IndexOf(employee));
+                    EmployeeMenu(employees, employers, employees.IndexOf(employee));
                     break;
                 }
                 else
                 {
-                    Tools.ShowMessage("Invalid status, try again :", ConsoleColor.DarkRed);
+                    Tools.ShowMessage("Invalid status, try again :", ConsoleColor.Red);
                     goto status;
                 }
             }

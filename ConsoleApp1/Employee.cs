@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SearchingSystem
 {
     class Employee : User
     {
+        public List<int> announceIDs = new  List<int>();
         public Employee(string usename, string email, string password) : base(usename, email, password){}
         public CV CV = null;
         public void ShowCV()
@@ -46,6 +45,7 @@ namespace SearchingSystem
                     Console.WriteLine($"Contact number                   : {announce.ContactNumber}\n");
                 }
             }
+            if (i == 1) Tools.ShowMessage("There is not any announcement that corresponds to your CV ", ConsoleColor.Red);
         }
         public void AnnouncesByCategory(List<Employer> employers)
         {
@@ -59,7 +59,7 @@ namespace SearchingSystem
             int.TryParse(Console.ReadLine(), out int option);
             if (option > 1 || option > 5)
             {
-                Tools.ShowMessage("Invalid imput, try again", ConsoleColor.DarkRed);
+                Tools.ShowMessage("Invalid imput, try again", ConsoleColor.Red);
                 goto option;
             }
             Console.Write("Enter key imput for searching : ");

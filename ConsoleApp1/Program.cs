@@ -1,25 +1,38 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using NLog;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SearchingSystem
 {
     class Program
     {
-        static List<Employee> employees = new List<Employee>();
-        static List<Employer> employers = new List<Employer>();
+        public static Logger logger = LogManager.GetCurrentClassLogger();
         static void Main(string[] args)
         {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Thread ATThread = new Thread(Tools.AnimatedHeader);
+            ATThread.Start("Welcome to Islam's job seraching system :)  ");
+            List<Employee> employees = new List<Employee>();
+            List<Employer> employers = new List<Employer>();
+            if (File.Exists("Employers.json") && File.Exists("Workers.json"))
+            {
+                string JsonEmployers = File.ReadAllText("Employers.json");
+                employers = JsonConvert.DeserializeObject<List<Employer>>(JsonEmployers);
+                string jsonEmployees = File.ReadAllText("Employees.json");
+                employees = JsonConvert.DeserializeObject<List<Employee>>(jsonEmployees);
+            }
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.CursorVisible = false;
             
             while (true)
             {
-                Console.WriteLine("1.Sign in || 2.Sign up || 3.Log out");
+                Console.Clear();
+                Console.WriteLine(" ___________________________________________");
+                Console.WriteLine("|             ||             ||             |");
+                Console.WriteLine("|  1.Sign in  ||  2.Sign up  ||  3.Log out  |");
+                Console.WriteLine("|_____________||_____________||_____________|");
                 var menu = Console.ReadLine();
                 #region Sign_In
                 if (menu == "1")
@@ -32,7 +45,8 @@ namespace SearchingSystem
                     else if ((userIndex = employers.FindIndex(x => x.Usename == username)) != -1) userType = 2;
                     else
                     {
-                        Tools.ShowMessage("There is not like username, try again", ConsoleColor.DarkRed);
+                        Tools.ShowMessage("There is not like username, try again", ConsoleColor.Red);
+                        Thread.Sleep(2000);
                         Console.Clear();
                         continue;
                     }
@@ -43,7 +57,7 @@ namespace SearchingSystem
                     {
                         if (!employees.Exists(x => x.Password == password))
                         {
-                            Tools.ShowMessage("Wrong password, try again", ConsoleColor.DarkRed);
+                            Tools.ShowMessage("Wrong password, try again", ConsoleColor.Red);
                             goto menu1_2;
                         }
                         Tools.EmployeeMenu(employees, employers, userIndex);
@@ -52,7 +66,7 @@ namespace SearchingSystem
                     {
                         if (!employers.Exists(x => x.Password == password))
                         {
-                            Tools.ShowMessage("Wrong password, try again", ConsoleColor.DarkRed);
+                            Tools.ShowMessage("Wrong password, try again", ConsoleColor.Red);
                             goto menu1_2;
                         }
                         Tools.EmployerMenu(employers, employees, userIndex);
@@ -70,18 +84,23 @@ namespace SearchingSystem
                 #region Exit
                 else if (menu == "3")
                 {
-                    Tools.ShowMessage("You are welcome", ConsoleColor.DarkGreen);
+                    Tools.ShowMessage("You are welcome", ConsoleColor.Green);
+                    string JsonEmployer = JsonConvert.SerializeObject(employers);
+                    File.WriteAllText("Employers.json", JsonEmployer);
+                    string JsonEmployee = JsonConvert.SerializeObject(employees);
+                    File.WriteAllText("Employees.json", JsonEmployee);
                     Thread.Sleep(2000);
                     break;
                 }
                 #endregion
                 else
                 {
-                    Tools.ShowMessage("Invalid imput, enter again", ConsoleColor.DarkRed);
+                    Tools.ShowMessage("Invalid imput, enter again", ConsoleColor.Red);
                     Thread.Sleep(2000);
                     Console.Clear();
                 }
             }
+            Environment.Exit(0);
         }
     }
 }
