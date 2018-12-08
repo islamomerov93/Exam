@@ -16,7 +16,7 @@ namespace SearchingSystem
             ATThread.Start("Welcome to Islam's job seraching system :)  ");
             List<Employee> employees = new List<Employee>();
             List<Employer> employers = new List<Employer>();
-            if (File.Exists("Employers.json") && File.Exists("Workers.json"))
+            if (File.Exists("Employers.json") && File.Exists("Employees.json"))
             {
                 string JsonEmployers = File.ReadAllText("Employers.json");
                 employers = JsonConvert.DeserializeObject<List<Employer>>(JsonEmployers);
@@ -25,7 +25,6 @@ namespace SearchingSystem
             }
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.CursorVisible = false;
-            
             while (true)
             {
                 Console.Clear();
@@ -45,6 +44,7 @@ namespace SearchingSystem
                     else if ((userIndex = employers.FindIndex(x => x.Usename == username)) != -1) userType = 2;
                     else
                     {
+                        logger.Error("Wrong username entry");
                         Tools.ShowMessage("There is not like username, try again", ConsoleColor.Red);
                         Thread.Sleep(2000);
                         Console.Clear();
@@ -57,6 +57,7 @@ namespace SearchingSystem
                     {
                         if (!employees.Exists(x => x.Password == password))
                         {
+                            logger.Error($"User {username} : Wrong password entry");
                             Tools.ShowMessage("Wrong password, try again", ConsoleColor.Red);
                             goto menu1_2;
                         }
@@ -66,6 +67,7 @@ namespace SearchingSystem
                     {
                         if (!employers.Exists(x => x.Password == password))
                         {
+                            logger.Error($"User {username} : Wrong password entry");
                             Tools.ShowMessage("Wrong password, try again", ConsoleColor.Red);
                             goto menu1_2;
                         }

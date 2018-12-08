@@ -24,24 +24,5 @@ namespace SearchingSystem
                 }
             }
         }
-        public void ShowAnnounces()
-        {
-            int i = 1;
-            foreach (var announce in announces)
-            {
-                Console.WriteLine($"Announce number {i++}");
-                Console.WriteLine($"Name of work                     : {announce.WorkName}");
-                Console.WriteLine($"Name of Company                  : {announce.CompanyName}");
-                Console.WriteLine($"Category of work                 : {announce.Category}");
-                Console.WriteLine($"Description about work           : {announce.AboutWork}");
-                Console.WriteLine($"City                             : {announce.City}");
-                Console.WriteLine($"Required mininun age             : {announce.Age}");
-                Console.WriteLine($"Required mininun education level : {announce.Education}");
-                Console.WriteLine($"Required mininun work experience : {announce.WorkExperience}");
-                Console.WriteLine($"Salary                           : {announce.Salary}");
-                Console.WriteLine($"Contact number                   : {announce.ContactNumber}\n");
-            }
-            if (i == 1) Tools.ShowMessage("There is not any announcement that corresponds to that category ", ConsoleColor.Red);
-        }
     }
 }

@@ -57,24 +57,25 @@ namespace SearchingSystem
             Console.WriteLine("5. Work experience");
             option:
             int.TryParse(Console.ReadLine(), out int option);
-            if (option > 1 || option > 5)
+            if (option < 1 && option > 5)
             {
                 Tools.ShowMessage("Invalid imput, try again", ConsoleColor.Red);
                 goto option;
             }
-            Console.Write("Enter key imput for searching : ");
-            Imput:
-            var keyImput = Console.ReadLine();
-            if (!Tools.NullErrorMessage(keyImput)) goto Imput;
+            bool check = false;
             switch (option)
             {
                 case 1:
                     foreach (var employer in employers)
                     {
                         var announces = from x in employer.announces
-                                        where x.Category.ToString().Contains(keyImput)
+                                        where x.Category.ToString().Contains(CV.Category.ToString())
                                         select x;
-                        employer.ShowAnnounces();
+                        foreach (var item in announces)
+                        {
+                            check = true;
+                            item.ShowAnnounce();
+                        }
                     }
                     Console.ReadKey();
                     break;
@@ -82,9 +83,13 @@ namespace SearchingSystem
                     foreach (var employer in employers)
                     {
                         var announces = from x in employer.announces
-                                        where x.Education.ToString().Contains(keyImput)
+                                        where x.Education.ToString().Contains(CV.Education.ToString())
                                         select x;
-                        employer.ShowAnnounces();
+                        foreach (var item in announces)
+                        {
+                            check = true;
+                            item.ShowAnnounce();
+                        }
                     }
                     Console.ReadKey();
                     break;
@@ -92,9 +97,13 @@ namespace SearchingSystem
                     foreach (var employer in employers)
                     {
                         var announces = from x in employer.announces
-                                        where x.City.ToString().Contains(keyImput)
+                                        where x.City.ToString().Contains(CV.City.ToString())
                                         select x;
-                        employer.ShowAnnounces();
+                        foreach (var item in announces)
+                        {
+                            check = true;
+                            item.ShowAnnounce();
+                        }
                     }
                     Console.ReadKey();
                     break;
@@ -102,9 +111,13 @@ namespace SearchingSystem
                     foreach (var employer in employers)
                     {
                         var announces = from x in employer.announces
-                                        where x.Salary.ToString().Contains(keyImput)
+                                        where x.Salary.ToString().Contains(CV.MinimumSalary.ToString())
                                         select x;
-                        employer.ShowAnnounces();
+                        foreach (var item in announces)
+                        {
+                            check = true;
+                            item.ShowAnnounce();
+                        }
                     }
                     Console.ReadKey();
                     break;
@@ -112,15 +125,18 @@ namespace SearchingSystem
                     foreach (var employer in employers)
                     {
                         var announces = from x in employer.announces
-                                        where x.WorkExperience.ToString().Contains(keyImput)
+                                        where x.WorkExperience.ToString().Contains(CV.WorkExperience.ToString())
                                         select x;
-                        employer.ShowAnnounces();
+                        foreach (var item in announces)
+                        {
+                            check = true;
+                            item.ShowAnnounce();
+                        }
                     }
                     Console.ReadKey();
                     break;
-                default:
-                    break;
             }
+            if (!check) Tools.ShowMessage("There is not any announcement that corresponds to choice ", ConsoleColor.Red);
         }
     }
 }

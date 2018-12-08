@@ -28,7 +28,7 @@ namespace SearchingSystem
         {
             Console.ForegroundColor = consoleColor;
             Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.Yellow; ;
+            Console.ForegroundColor = ConsoleColor.Yellow;
         }
         public static bool NullErrorMessage(string str)
         {
@@ -235,54 +235,69 @@ namespace SearchingSystem
                         continue;
                     case "5":
                         anons:
-                        int i = 0;
-                        foreach (var employer in employers)
-                        {
-                            foreach (var announce in employer.announces) Console.WriteLine($"{i}. announce.Category");
-                        }
-                        int.TryParse(Console.ReadLine(), out int id);
+                        int i = 1;
                         foreach (var employer in employers)
                         {
                             foreach (var announce in employer.announces)
                             {
-                                if (announce.ID == id)
+                                i++;
+                                Console.WriteLine($"{announce.ID}. {announce.WorkName}");
+                            }
+                        }
+                        if (i != 1)
+                        {
+                            Console.Write("Enter announce ID : ");
+                            int.TryParse(Console.ReadLine(), out int id);
+                            foreach (var employer in employers)
+                            {
+                                foreach (var announce in employer.announces)
                                 {
-                                    Console.WriteLine($"Announce number {i++}");
-                                    Console.WriteLine($"Name of work                     : {announce.WorkName}");
-                                    Console.WriteLine($"Name of Company                  : {announce.CompanyName}");
-                                    Console.WriteLine($"Category of work                 : {announce.Category}");
-                                    Console.WriteLine($"Description about work           : {announce.AboutWork}");
-                                    Console.WriteLine($"City                             : {announce.City}");
-                                    Console.WriteLine($"Required mininun age             : {announce.Age}");
-                                    Console.WriteLine($"Required mininun education level : {announce.Education}");
-                                    Console.WriteLine($"Required mininun work experience : {announce.WorkExperience}");
-                                    Console.WriteLine($"Salary                           : {announce.Salary}");
-                                    Console.WriteLine($"Contact number                   : {announce.ContactNumber}\n");
-                                    Console.WriteLine("Apply for job (Y/N)");
-                                    choice:
-                                    Console.Write("Answer : ");
-                                    var apply = Console.ReadLine().ToLower();
-                                    if (apply == "y")
+                                    if (announce.ID == id)
                                     {
-                                        employer.Apply[id].Add(employees[userIndex].CV);
-                                        employees[userIndex].announceIDs.Add(announce.ID);
-                                        ShowMessage("CV sended successfully", ConsoleColor.Green);
-                                        Thread.Sleep(2000);
-                                        continue;
-                                    }
-                                    else if (apply == "n")
-                                    {
-                                        Console.Clear();
-                                        goto anons;
-                                    }
-                                    else
-                                    {
-                                        ShowMessage("Invalid imput, enter again", ConsoleColor.Red);
-                                        goto choice;
+                                        Console.WriteLine($"Announce number {i++}");
+                                        Console.WriteLine($"Name of work                     : {announce.WorkName}");
+                                        Console.WriteLine($"Name of Company                  : {announce.CompanyName}");
+                                        Console.WriteLine($"Category of work                 : {announce.Category}");
+                                        Console.WriteLine($"Description about work           : {announce.AboutWork}");
+                                        Console.WriteLine($"City                             : {announce.City}");
+                                        Console.WriteLine($"Required mininun age             : {announce.Age}");
+                                        Console.WriteLine($"Required mininun education level : {announce.Education}");
+                                        Console.WriteLine($"Required mininun work experience : {announce.WorkExperience}");
+                                        Console.WriteLine($"Salary                           : {announce.Salary}");
+                                        Console.WriteLine($"Contact number                   : {announce.ContactNumber}\n");
+                                        Console.WriteLine("Apply for job (Y/N)");
+                                        choice:
+                                        Console.Write("Answer : ");
+                                        var apply = Console.ReadLine().ToLower();
+                                        if (apply == "y")
+                                        {
+                                            if(employer.Apply[id] == null) employer.Apply[id] = new List<CV>();
+                                            if (!employer.Apply[id].Contains(employees[userIndex].CV))
+                                            {
+                                                ShowMessage("CV sended successfully", ConsoleColor.Green);
+                                                employer.Apply[id].Add(employees[userIndex].CV);
+                                            }
+                                            else ShowMessage("You have already sent CV to this job", ConsoleColor.Red);
+                                            if (!employees[userIndex].announceIDs.Contains(announce.ID)) employees[userIndex].announceIDs.Add(announce.ID);
+                                            Thread.Sleep(2000);
+                                            continue;
+                                        }
+                                        else if (apply == "n")
+                                        {
+                                            Console.Clear();
+                                            goto anons;
+                                        }
+                                        else
+                                        {
+                                            ShowMessage("Invalid imput, enter again", ConsoleColor.Red);
+                                            goto choice;
+                                        }
                                     }
                                 }
                             }
                         }
+                        if (i == 1) Tools.ShowMessage("There is not any announcement", ConsoleColor.Red);
+                        Console.ReadKey();
                         continue;
                     case "6":
                         int o = 1;
@@ -307,8 +322,9 @@ namespace SearchingSystem
                                     Console.WriteLine($"Salary                           : {item.Salary}");
                                     Console.WriteLine($"Contact number                   : {item.ContactNumber}\n");
                                 }
-                             }
+                            }
                         }
+                        if (o == 1) Tools.ShowMessage("There is not any announcement that you applied", ConsoleColor.Red);
                         Console.ReadKey();
                         continue;
                     case "7":
@@ -341,14 +357,14 @@ namespace SearchingSystem
                         while (true)
                         {
                             Announcement announce = new Announcement();
-                            Console.WriteLine("Name of work     : ");
+                            Console.WriteLine("1. Name of work     : ");
                             workname:
                             announce.WorkName = Console.ReadLine();
-                            if (Tools.NullErrorMessage(announce.WorkName)) goto workname;
+                            if (NullErrorMessage(announce.WorkName)) goto workname;
                             Console.WriteLine("2. Name of company  : ");
                             companyname:
-                            announce.WorkName = Console.ReadLine();
-                            if (Tools.NullErrorMessage(announce.WorkName)) goto companyname;
+                            announce.CompanyName = Console.ReadLine();
+                            if (NullErrorMessage(announce.CompanyName)) goto companyname;
                             Console.WriteLine("Category");
                             Console.WriteLine("1.Programmer     : ");
                             Console.WriteLine("2.ItSpecialist   : ");
@@ -438,24 +454,35 @@ namespace SearchingSystem
                             Console.WriteLine("Contact number   : ");
                             number:
                             announce.ContactNumber = Console.ReadLine();
-                            if (Tools.NullErrorMessage(announce.ContactNumber)) goto number;
+                            if (!Check.CorrectNumber(announce.ContactNumber))
+                            {
+                                ShowMessage("Invalid number format, enter again", ConsoleColor.Red);
+                                goto number;
+                            }
                             ++announce.ID;
                             employers[userIndex].Apply[announce.ID] = null;
                             employers[userIndex].announces.Add(announce);
-                            Tools.ShowMessage("Announce added successfully", ConsoleColor.Green);
+                            ShowMessage("Announce added successfully", ConsoleColor.Green);
+                            Thread.Sleep(2000);
                             break;
                         }
                         break;
                     case "2":
                         employers[userIndex].CVsByAnnounces(employees, userIndex);
+                        Console.ReadKey();
                         break;
                     case "3":
                         foreach (var item in employers[userIndex].Apply)
                         {
-                            if (item.Key != null)
+                            if (item.Value != null)
                             {
                                 foreach (var i in item.Value)
                                 {
+                                    foreach (var item2 in employers)
+                                    {
+
+                                        Console.WriteLine($"Work name : {item2.announces.Find(x=>x.ID==item.Key).WorkName}");
+                                    }
                                     Console.WriteLine("Name            : " + i.Name);
                                     Console.WriteLine("SUrname         : " + i.Surname);
                                     Console.WriteLine("Sex             : " + i.Sex);
@@ -469,6 +496,7 @@ namespace SearchingSystem
                                 }
                             }
                         }
+                        Console.ReadKey();
                         break;
                     case "4":
                         check = true;
@@ -492,24 +520,46 @@ namespace SearchingSystem
                 var username = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(username))
                 {
+                    Program.logger.Error("Empty username entry in registration");
                     ShowMessage("Invalide entry (empty username not accepted), try again :", ConsoleColor.Red);
                     goto username;
                 }
                 else if (employees.Exists(x => x.Usename == username))
                 {
+                    Program.logger.Error("Existed username entry in registration");
                     ShowMessage("This username already exists, try again :", ConsoleColor.Red);
                     goto username;
                 }
                 Console.Write("Enter email          : ");
                 email:
                 var email = Console.ReadLine();
+                foreach (var employer in employers)
+                {
+                    if (employer.Email == email)
+                    {
+                        Program.logger.Error("Existed email entry in registration");
+                        ShowMessage("This email is used by another user", ConsoleColor.Red);
+                        goto email;
+                    }
+                }
+                foreach (var employee in employees)
+                {
+                    if (employee.Email == email)
+                    {
+                        Program.logger.Error("Existed email entry in registration");
+                        ShowMessage("This email is used by another user", ConsoleColor.Red);
+                        goto email;
+                    }
+                }
                 if (string.IsNullOrWhiteSpace(email))
                 {
+                    Program.logger.Error("Empty email entry in registration");
                     ShowMessage("Invalide entry (empty email not accepted), try again :", ConsoleColor.Red);
                     goto email;
                 }
                 else if (!Check.CorrectEmail(email))
                 {
+                    Program.logger.Error("Email format error in registration");
                     ShowMessage("Invalid email, try again :", ConsoleColor.Red);
                     goto email;
                 }
@@ -518,11 +568,13 @@ namespace SearchingSystem
                 var password = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(password))
                 {
+                    Program.logger.Error("Empty password entry in registration");
                     ShowMessage("Invalide entry (empty password not accepted), try again :", ConsoleColor.Red);
                     goto password1;
                 }
                 else if (!Check.CorrectPassword(password))
                 {
+                    Program.logger.Error("Password format error in registration");
                     ShowMessage("Invalid password, try again :", ConsoleColor.Red);
                     goto password1;
                 }
@@ -531,11 +583,13 @@ namespace SearchingSystem
                 var password2 = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(password2))
                 {
+                    Program.logger.Error("Empty password entry in registration");
                     ShowMessage("Invalide entry (empty password not accepted), try again :", ConsoleColor.Red);
                     goto password1;
                 }
                 else if (password != password2)
                 {
+                    Program.logger.Error("Password dismatch error in registration");
                     ShowMessage("Password didn't match, try again :", ConsoleColor.Red);
                     goto password2;
                 }
@@ -547,11 +601,13 @@ namespace SearchingSystem
                 var confirm = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(confirm))
                 {
+                    Program.logger.Error("Empty code entry in registration");
                     Tools.ShowMessage("Invalide entry (empty code not accepted), try again :", ConsoleColor.Red);
                     goto confirm;
                 }
                 else if (confirm != ConfirmmationCode)
                 {
+                    Program.logger.Error("Code wrong entry in registration");
                     ShowMessage("Invalid code, try again :", ConsoleColor.Red);
                     goto confirm;
                 }
@@ -563,7 +619,8 @@ namespace SearchingSystem
                 {
                     Employer employer = new Employer(username, email, password);
                     employers.Add(employer);
-                    ShowMessage($"Congrulation {employer.Usename} ! Registration is succesfull", ConsoleColor.Green);
+                    ShowMessage($"Congratulation {employer.Usename} ! Registration is succesfull", ConsoleColor.Green);
+                    Program.logger.Info($"{employer.Usename} registered succesfully");
                     Thread.Sleep(2000);
                     Console.Clear();
                     EmployerMenu(employers, employees, employers.IndexOf(employer));
@@ -573,7 +630,8 @@ namespace SearchingSystem
                 {
                     Employee employee = new Employee(username, email, password);
                     employees.Add(employee);
-                    ShowMessage($"Congrulation {employee.Usename}! Registration is succesfull", ConsoleColor.Green);
+                    ShowMessage($"Congratulation {employee.Usename}! Registration is succesfull", ConsoleColor.Green);
+                    Program.logger.Info($"{employee.Usename} registered succesfully");
                     Thread.Sleep(2000);
                     Console.Clear();
                     EmployeeMenu(employees, employers, employees.IndexOf(employee));
