@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Announcement.cs" />
-    <Compile Include="Check.cs" />
+    <Compile Include="Tools.cs" />
     <Compile Include="CV.cs" />
     <Compile Include="Employer.cs" />
     <Compile Include="Program.cs" />
